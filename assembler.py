@@ -1,3 +1,4 @@
+import os
 file = input("File to assemble: ")
 fileinput = open(file)
 
