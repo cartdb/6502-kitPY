@@ -25,5 +25,4 @@ for byte in pathlib.Path(file).read_bytes():
         linesWritten += 1
     else:
         fileoutput.write("\n" + instruction)
-os.remove(file)
 fileoutput.close()
