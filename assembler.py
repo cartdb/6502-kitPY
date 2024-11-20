@@ -1,35 +1,106 @@
-import os
-file = input("File to assemble: ")
-fileinput = open(file)
-
-if os.path.isfile(file) and ".asm" in file:
-    print("")
-else:
-    raise Exception("File not found!")
-
-linesWritten = 0
-
-bytesArr = [B'\x00', B'\x01', B'\x02', B'\x03', B'\x04', B'\x05', B'\x06', B'\x07', B'\x08', B'\x09', B'\x0A', B'\x0B', B'\x0C', B'\x0D', B'\x0E', B'\x0F', B'\x10', B'\x11', B'\x12', B'\x13', B'\x14', B'\x15', B'\x16', B'\x17', B'\x18', B'\x19', B'\x1A', B'\x1B', B'\x1C', B'\x1D', B'\x1E', B'\x1F', B'\x20', B'\x21', B'\x22', B'\x23', B'\x24', B'\x25', B'\x26', B'\x27', B'\x28', B'\x29', B'\x2A', B'\x2B', B'\x2C', B'\x2D', B'\x2E', B'\x2F', B'\x30', B'\x31', B'\x32', B'\x33', B'\x34', B'\x35', B'\x36', B'\x37', B'\x38', B'\x39', B'\x3A', B'\x3B', B'\x3C', B'\x3D', B'\x3E', B'\x3F', B'\x40', B'\x41', B'\x42', B'\x43', B'\x44', B'\x45', B'\x46', B'\x47', B'\x48', B'\x49', B'\x4A', B'\x4B', B'\x4C', B'\x4D', B'\x4E', B'\x4F', B'\x50', B'\x51', B'\x52', B'\x53', B'\x54', B'\x55', B'\x56', B'\x57', B'\x58', B'\x59', B'\x5A', B'\x5B', B'\x5C', B'\x5D', B'\x5E', B'\x5F', B'\x60', B'\x61', B'\x62', B'\x63', B'\x64', B'\x65', B'\x66', B'\x67', B'\x68', B'\x69', B'\x6A', B'\x6B', B'\x6C', B'\x6D', B'\x6E', B'\x6F', B'\x70', B'\x71', B'\x72', B'\x73', B'\x74', B'\x75', B'\x76', B'\x77', B'\x78', B'\x79', B'\x7A', B'\x7B', B'\x7C', B'\x7D', B'\x7E', B'\x7F', B'\x80', B'\x81', B'\x82', B'\x83', B'\x84', B'\x85', B'\x86', B'\x87', B'\x88', B'\x89', B'\x8A', B'\x8B', B'\x8C', B'\x8D', B'\x8E', B'\x8F', B'\x90', B'\x91', B'\x92', B'\x93', B'\x94', B'\x95', B'\x96', B'\x97', B'\x98', B'\x99', B'\x9A', B'\x9B', B'\x9C', B'\x9D', B'\x9E', B'\x9F', B'\xA0', B'\xA1', B'\xA2', B'\xA3', B'\xA4', B'\xA5', B'\xA6', B'\xA7', B'\xA8', B'\xA9', B'\xAA', B'\xAB', B'\xAC', B'\xAD', B'\xAE', B'\xAF', B'\xB0', B'\xB1', B'\xB2', B'\xB3', B'\xB4', B'\xB5', B'\xB6', B'\xB7', B'\xB8', B'\xB9', B'\xBA', B'\xBB', B'\xBC', B'\xBD', B'\xBE', B'\xBF', B'\xC0', B'\xC1', B'\xC2', B'\xC3', B'\xC4', B'\xC5', B'\xC6', B'\xC7', B'\xC8', B'\xC9', B'\xCA', B'\xCB', B'\xCC', B'\xCD', B'\xCE', B'\xCF', B'\xD0', B'\xD1', B'\xD2', B'\xD3', B'\xD4', B'\xD5', B'\xD6', B'\xD7', B'\xD8', B'\xD9', B'\xDA', B'\xDB', B'\xDC', B'\xDD', B'\xDE', B'\xDF', B'\xE0', B'\xE1', B'\xE2', B'\xE3', B'\xE4', B'\xE5', B'\xE6', B'\xE7', B'\xE8', B'\xE9', B'\xEA', B'\xEB', B'\xEC', B'\xED', B'\xEE', B'\xEF', B'\xF0', B'\xF1', B'\xF2', B'\xF3', B'\xF4', B'\xF5', B'\xF6', B'\xF7', B'\xF8', B'\xF9', B'\xFA', B'\xFB', B'\xFC', B'\xFD', B'\xFE', B'\xFF']
-
-fileFormat = input("File format of binary: ")
-fileoutput = open(file.replace(".asm", fileFormat), "wb")
-
+import sys
+def split_string(string, n):
+    return string[:n], string[n:]
+instructions = ['BRK impl', 'ORA X,ind', 'ORA zpg', 'ASL zpg', 'PHP impl', 'ORA #', 'ASL A', 'ORA abs', 'ASL abs', 'BPL rel', 'ORA ind,Y', 'ORA zpg,X', 'ASL zpg,X', 'CLC impl', 'ORA abs,Y', 'ORA abs,X', 'ASL abs,X', 'JSR abs', 'AND X,ind', 'BIT zpg', 'AND zpg', 'ROL zpg', 'PLP impl', 'AND #', 'ROL A', 'BIT abs', 'AND abs', 'ROL abs', 'BMI rel', 'AND ind,Y', 'AND zpg,X', 'ROL zpg,X', 'SEC impl', 'AND abs,Y', 'AND abs,X', 'ROL abs,X', 'RTI impl', 'EOR X,ind', 'EOR zpg', 'LSR zpg', 'PHA impl', 'EOR #', 'LSR A', 'JMP abs', 'EOR abs', 'LSR abs', 'BVC rel', 'EOR ind,Y', 'EOR zpg,X', 'LSR zpg,X', 'CLI impl', 'EOR abs,Y', 'EOR abs,X', 'LSR abs,X', 'RTS impl', 'ADC X,ind', 'ADC zpg', 'ROR zpg', 'PLA impl', 'ADC #', 'ROR A', 'JMP ind', 'ADC abs', 'ROR abs', 'BVS rel', 'ADC ind,Y', 'ADC zpg,X', 'ROR zpg,X', 'SEI impl', 'ADC abs,Y', 'ADC abs,X', 'ROR abs,X', 'STA X,ind', 'STY zpg', 'STA zpg', 'STX zpg', 'DEY impl', 'TXA impl', 'STY abs', 'STA abs', 'STX abs', 'BCC rel', 'STA ind,Y', 'STY zpg,X', 'STA zpg,X', 'STX zpg,Y', 'TYA impl', 'STA abs,Y', 'TXS impl', 'STA abs,X', 'LDY #', 'LDA X,ind', 'LDX #', 'LDY zpg', 'LDA zpg', 'LDX zpg', 'TAY impl', 'LDA #', 'TAX impl', 'LDY abs', 'LDA abs', 'LDX abs', 'BCS rel', 'LDA ind,Y', 'LDY zpg,X', 'LDA zpg,X', 'LDX zpg,Y', 'CLV impl', 'LDA abs,Y', 'TSX impl', 'LDY abs,X', 'LDA abs,X', 'LDX abs,Y', 'CPY #', 'CMP X,ind', 'CPY zpg', 'CMP zpg', 'DEC zpg', 'INY impl', 'CMP #', 'DEX impl', 'CPY abs', 'CMP abs', 'DEC abs', 'BNE rel', 'CMP ind,Y', 'CMP zpg,X', 'DEC zpg,X', 'CLD impl', 'CMP abs,Y', 'CMP abs,X', 'DEC abs,X', 'CPX #', 'SBC X,ind', 'CPX zpg', 'SBC zpg', 'INC zpg', 'INX impl', 'SBC #', 'NOP impl', 'CPX abs', 'SBC abs', 'INC abs', 'BEQ rel', 'SBC ind,Y', 'SBC zpg,X', 'INC zpg,X', 'SED impl', 'SBC abs,Y', 'SBC abs,X', 'INC abs,X'] 
+bytes = [0, 1, 5, 6, 8, 9, 10, 13, 14, 16, 17, 21, 22, 24, 25, 29, 30, 32, 33, 36, 37, 38, 40, 41, 42, 44, 45, 46, 48, 49, 53, 54, 56, 57, 61, 62, 64, 65, 69, 70, 72, 73, 74, 76, 77, 78, 80, 81, 85, 86, 88, 89, 93, 94, 96, 97, 101, 102, 104, 105, 106, 108, 109, 110, 112, 113, 117, 118, 120, 121, 125, 126, 129, 132, 133, 134, 136, 138, 140, 141, 142, 144, 145, 148, 149, 150, 152, 153, 154, 157, 160, 161, 162, 164, 165, 166, 168, 169, 170, 172, 173, 174, 176, 177, 180, 181, 182, 184, 185, 186, 188, 189, 190, 192, 193, 196, 197, 198, 200, 201, 202, 204, 205, 206, 208, 209, 213, 214, 216, 217, 221, 222, 224, 225, 228, 229, 230, 232, 233, 234, 236, 237, 238, 240, 241, 245, 246, 248, 249, 253, 254]
+file = open(sys.argv[1], "r")
+lines = []
 while True:
-    line = fileinput.readline()
+    line = file.readline()
     if not line:
         break
-    line = line.split(".")
-    line = line[1]
-    line = line.replace("\n", "")
-    line = "." + line
-    if line.isspace() == False:
-        if ".DB $" not in line:
-            raise Exception(".DB $ must be in any line that is not whitespace!")
-        if len(line.replace(".DB $", "")) == 2:
-            line = line.replace(".DB $", "")
-            line = int(line, 16)
-            line = bytesArr[line]
-            fileoutput.write(line)
+    line = line.replace("\\n", "").replace("\n", "").split(" ;")[0]
+    lines.append(line)
+if lines[0].split("$")[0] != "ORG ":
+    print("Invalid start address.")
+    sys.exit()
+#expectedSize = 65536 - int(lines[0].split("ORG $")[1], 16)
+org = int(lines[0].split("ORG $")[1], 16)
+lines.pop(0)
+bytesArray = []
+for line in range(len(lines)):
+    flag = False
+    if len(lines[line]) == 3:
+        for opcode in range(len(instructions)):
+            if instructions[opcode].split(" impl")[0] == lines[line] or instructions[opcode].split(" A")[0] == lines[line]:
+                bytesArray.append(bytes[opcode])
+                flag = True
+    elif len(lines[line]) == 9:
+        if ".byte $" in lines[line]:
+            bytesArray.append(int(lines[line].split(".byte $")[1], 16))
+            flag = True
         else:
-            raise Exception("Character length of hex number must be 2!")
-fileoutput.close()
+            for opcode in range(len(instructions)):
+                if instructions[opcode].split(" abs")[0] in lines[line] and "," not in instructions[opcode] and "," not in lines[line] and len(instructions[opcode].split(" abs")) > 1:
+                    bytesArray.append(bytes[opcode])
+                    string = lines[line].split("$")[1]
+                    high_byte, low_byte = split_string(string, 2)
+                    bytesArray.append(int(low_byte, 16))
+                    bytesArray.append(int(high_byte, 16))
+                    flag = True
+                elif instructions[opcode].split(" rel")[0] in lines[line] and len(instructions[opcode].split(" rel")) > 1:
+                    bytesArray.append(bytes[opcode])
+                    pc = int(hex(org + len(bytesArray)), 16)
+                    branch = int(lines[line].split("$")[1], 16)
+                    if pc >= branch:
+                        bytesArray.append(int(hex(255 - (pc - branch)), 16))
+                    elif pc < branch:
+                        bytesArray.append(int(hex((branch - pc) - 1), 16))
+                    flag = True
+                elif instructions[opcode].split(" zpg,X")[0] in lines[line] and ",X" in lines[line] and len(instructions[opcode].split(" zpg,X")) > 1:
+                    bytesArray.append(bytes[opcode])
+                    bytesArray.append(int(lines[line].split("$")[1].split(",")[0], 16))
+                    flag = True
+                elif instructions[opcode].split(" zpg,Y")[0] in lines[line] and ",Y" in lines[line] and len(instructions[opcode].split(" zpg,Y")) > 1:
+                    bytesArray.append(bytes[opcode])
+                    bytesArray.append(int(lines[line].split("$")[1].split(",")[0], 16))
+                    flag = True
+    elif len(lines[line]) == 11:
+        for opcode in range(len(instructions)):
+            if instructions[opcode].split(" X,ind")[0] in lines[line] and ",X)" in lines[line] and len(instructions[opcode].split(" X,ind")) > 1:
+                bytesArray.append(bytes[opcode])
+                bytesArray.append(int(lines[line].split("$")[1].split(",")[0], 16))
+                flag = True
+            elif instructions[opcode].split(" ind,Y")[0] in lines[line] and "),Y" in lines[line] and len(instructions[opcode].split(" ind,Y")) > 1:
+                bytesArray.append(bytes[opcode])
+                bytesArray.append(int(lines[line].split("$")[1].split("),")[0], 16))
+                flag = True
+            elif instructions[opcode].split(" abs,X")[0] in lines[line] and ",X" in lines[line] and "(" not in instructions[opcode] and "(" not in lines[line] and len(instructions[opcode].split(" abs,X")) > 1:
+                bytesArray.append(bytes[opcode])
+                string = lines[line].split("$")[1].split(",")[0]
+                high_byte, low_byte = split_string(string, 2)
+                bytesArray.append(int(low_byte, 16))
+                bytesArray.append(int(high_byte, 16))
+                flag = True
+            elif instructions[opcode].split(" abs,Y")[0] in lines[line] and ",Y" in lines[line] and "(" not in instructions[opcode] and "(" not in lines[line] and len(instructions[opcode].split(" abs,Y")) > 1:
+                bytesArray.append(bytes[opcode])
+                string = lines[line].split("$")[1].split(",")[0]
+                high_byte, low_byte = split_string(string, 2)
+                bytesArray.append(int(low_byte, 16))
+                bytesArray.append(int(high_byte, 16))
+                flag = True
+            elif instructions[opcode].split(" ind")[0] in lines[line] and "," not in instructions[opcode] and "," not in lines[line] and "(" in lines[line]:
+                bytesArray.append(bytes[opcode])
+                string = lines[line].split("$")[1].split(")")[0]
+                high_byte, low_byte = split_string(string, 2)
+                bytesArray.append(int(low_byte, 16))
+                bytesArray.append(int(high_byte, 16))
+                flag = True     
+    elif len(lines[line]) == 8:
+        for opcode in range(len(instructions)):
+            if instructions[opcode].split(" #")[0] in lines[line] and len(instructions[opcode].split(" #")) > 1:
+                bytesArray.append(bytes[opcode])
+                bytesArray.append(int(lines[line].split("#$")[1], 16))
+                flag = True
+    elif len(lines[line]) == 7:
+        for opcode in range(len(instructions)):
+            if instructions[opcode].split(" zpg")[0] in lines[line] and "," not in instructions[opcode] and "," not in lines[line] and len(instructions[opcode].split(" zpg")) > 1:
+                bytesArray.append(bytes[opcode])
+                bytesArray.append(int(lines[line].split("$")[1], 16))
+                flag = True
+    if flag == False:
+        print(sys.argv[1] + " (" + str(line + 2) + ") Illegal instruction. - " + lines[line])
+        sys.exit()
+file = open("a.out", "wb")
+file.write(bytearray(bytesArray))
+file.close()
