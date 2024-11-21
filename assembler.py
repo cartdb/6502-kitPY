@@ -95,6 +95,9 @@ for line in range(len(lines)):
     if flag == False:
         print(sys.argv[1] + " (" + str(line + 2) + ") Illegal instruction. - " + lines[line])
         sys.exit()
+    if len(bytesArray) > 65535:
+        print("The file is oversize. Assembling failed.")
+        sys.exit()
 file = open("a.out", "wb")
 file.write(bytearray(bytesArray))
 file.close()

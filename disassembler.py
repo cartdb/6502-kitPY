@@ -12,8 +12,19 @@ for byte in pathlib.Path(sys.argv[1]).read_bytes():
     bytesArr.append(byte) 
 fileBytes = 0 
 fileoutput = open(sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm"), "w")
-while fileBytes < len(bytesArr): 
-    counter = hex(fileBytes).replace("0x", "") + " "
+linesWritten = False
+if os.path.getsize(sys.argv[1]) > 65535:
+    print("File is too large. It should be chunked up.")
+    sys.exit()
+while fileBytes < len(bytesArr):
+    if fileBytes < 16:
+        counter = "000" + hex(fileBytes).replace("0x", "") + " "
+    elif fileBytes < 256:
+        counter = "00" + hex(fileBytes).replace("0x", "") + " "
+    elif fileBytes < 4096:
+        counter = "0" + hex(fileBytes).replace("0x", "") + " "
+    else:
+        counter = hex(fileBytes).replace("0x", "") + " "
     if bytesArr[fileBytes] < 16: 
         instruction = ".byte $0" + hex(bytesArr[fileBytes]).replace("0x", "") 
     else: 
@@ -113,13 +124,16 @@ while fileBytes < len(bytesArr):
                 elif " rel" in instructions[byte]: 
                     instruction = instructions[byte].split(" rel")[0]  
                     highByte = bytesArr[fileBytes + 1] 
-                    if highByte < 16: 
-                        highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
+                    if highByte > 127:
+                        highByte = hex(fileBytes + 1 - (255 - highByte)).replace("0x", "") 
                     else: 
-                        if highByte > 127: 
-                            highByte = hex(fileBytes + 1 - (255 - highByte)).replace("0x", "") 
-                        else: 
-                            highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
+                        highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
+                    if int(highByte, 16) < 16:
+                        highByte = "000" + highByte
+                    elif int(highByte, 16) < 256:
+                        highByte = "00" + highByte
+                    elif int(highByte, 16) < 4096:
+                        highByte = "0" + highByte
                     instruction = instruction + " $" + highByte 
                     highByte = hex(bytesArr[fileBytes + 1]).replace("0x", "")
                     fileBytes += 1
@@ -180,7 +194,11 @@ while fileBytes < len(bytesArr):
         if int(main, 16) < 16:
             main = "0" + main
         counter = counter + main
-    fileoutput.write("\n" + instruction + " ; $" + counter) 
+    if linesWritten == False:
+        fileoutput.write(instruction + " ; $" + counter) 
+        linesWritten = True
+    else:
+        fileoutput.write("\n" + instruction + " ; $" + counter) 
     fileBytes += 1 
 fileoutput.close() 
 os.system('python assembler.py "' + sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm") + '"') 
