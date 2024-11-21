@@ -11,12 +11,6 @@ while True:
         break
     line = line.replace("\\n", "").replace("\n", "").split(" ;")[0]
     lines.append(line)
-if lines[0].split("$")[0] != "ORG ":
-    print("Invalid start address.")
-    sys.exit()
-#expectedSize = 65536 - int(lines[0].split("ORG $")[1], 16)
-org = int(lines[0].split("ORG $")[1], 16)
-lines.pop(0)
 bytesArray = []
 for line in range(len(lines)):
     flag = False
@@ -40,7 +34,7 @@ for line in range(len(lines)):
                     flag = True
                 elif instructions[opcode].split(" rel")[0] in lines[line] and len(instructions[opcode].split(" rel")) > 1:
                     bytesArray.append(bytes[opcode])
-                    pc = int(hex(org + len(bytesArray)), 16)
+                    pc = int(hex(len(bytesArray)), 16)
                     branch = int(lines[line].split("$")[1], 16)
                     if pc >= branch:
                         bytesArray.append(int(hex(255 - (pc - branch)), 16))

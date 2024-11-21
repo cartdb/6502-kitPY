@@ -12,14 +12,8 @@ for byte in pathlib.Path(sys.argv[1]).read_bytes():
     bytesArr.append(byte) 
 fileBytes = 0 
 fileoutput = open(sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm"), "w")
-start = hex(65536 - os.path.getsize(sys.argv[1])).replace("0x", "")
-start2 = 65536 - os.path.getsize(sys.argv[1])
-if start2 < 0:
-    print("File size is greater than 64 KB. Exiting.")
-    sys.exit()
-fileoutput.write("ORG $" + start) 
 while fileBytes < len(bytesArr): 
-    counter = hex(start2 + fileBytes).replace("0x", "") + " "
+    counter = hex(fileBytes).replace("0x", "") + " "
     if bytesArr[fileBytes] < 16: 
         instruction = ".byte $0" + hex(bytesArr[fileBytes]).replace("0x", "") 
     else: 
@@ -120,12 +114,12 @@ while fileBytes < len(bytesArr):
                     instruction = instructions[byte].split(" rel")[0]  
                     highByte = bytesArr[fileBytes + 1] 
                     if highByte < 16: 
-                        highByte = hex(start2 + fileBytes + highByte + 2).replace("0x", "") 
+                        highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
                     else: 
                         if highByte > 127: 
-                            highByte = hex(start2 + fileBytes + 1 - (255 - highByte)).replace("0x", "") 
+                            highByte = hex(fileBytes + 1 - (255 - highByte)).replace("0x", "") 
                         else: 
-                            highByte = hex(start2 + fileBytes + highByte + 2).replace("0x", "") 
+                            highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
                     instruction = instruction + " $" + highByte 
                     highByte = hex(bytesArr[fileBytes + 1]).replace("0x", "")
                     fileBytes += 1
