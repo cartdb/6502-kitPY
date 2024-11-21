@@ -209,7 +209,7 @@ while fileBytes < len(bytesArr):
         fileoutput.write("\n" + instruction + " ; $" + counter) 
     fileBytes += 1 
 fileoutput.close() 
-os.system('python assembler.py "' + sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm") + '" --illegal') 
+os.system('python assembler.py "' + sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm") + '"') 
 hash = open("a.out", "rb") 
 hash = hash.read() 
 hash = hex(zlib.crc32(hash)).replace("0x", "") 
