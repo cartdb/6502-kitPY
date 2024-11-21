@@ -1,6 +1,6 @@
 # The assembler
 
-A bare-bones 6502 assembler. Only supports code and the .byte directive.
+A bare-bones 6502 assembler. Only supports code and the .byte directive. You can also try to implement illegal opcodes, but some of these have more than one byte for the corresponding instruction, so it does not work.
 
 # The disassembler
 
