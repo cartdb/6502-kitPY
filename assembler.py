@@ -125,9 +125,6 @@ for line in range(len(lines)):
     if len(bytesArray) > 65535:
         print("The file is oversize. Assembling failed.")
         sys.exit()
-for byte in range(len(bytesArray)):
-    if bytesArray[byte] < 0:
-        print(hex(byte))
 print(len(bytesArray))
 if assemble == True:
     file = open("a.out", "wb")
