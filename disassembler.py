@@ -16,15 +16,8 @@ linesWritten = False
 if os.path.getsize(sys.argv[1]) > 65535:
     print("File is too large. It should be chunked up.")
     sys.exit()
+start = 65536 - os.path.getsize(sys.argv[1])
 while fileBytes < len(bytesArr):
-    if fileBytes < 16:
-        counter = "000" + hex(fileBytes).replace("0x", "") + " "
-    elif fileBytes < 256:
-        counter = "00" + hex(fileBytes).replace("0x", "") + " "
-    elif fileBytes < 4096:
-        counter = "0" + hex(fileBytes).replace("0x", "") + " "
-    else:
-        counter = hex(fileBytes).replace("0x", "") + " "
     if bytesArr[fileBytes] < 16: 
         instruction = ".byte $0" + hex(bytesArr[fileBytes]).replace("0x", "") 
     else: 
@@ -125,9 +118,9 @@ while fileBytes < len(bytesArr):
                     instruction = instructions[byte].split(" rel")[0]  
                     highByte = bytesArr[fileBytes + 1] 
                     if highByte > 127:
-                        highByte = hex(fileBytes + 1 - (255 - highByte)).replace("0x", "") 
+                        highByte = hex(start + fileBytes + 1 - (255 - highByte)).replace("0x", "") 
                     else: 
-                        highByte = hex(fileBytes + highByte + 2).replace("0x", "") 
+                        highByte = hex(start + fileBytes + highByte + 2).replace("0x", "") 
                     if int(highByte, 16) < 16:
                         highByte = "000" + highByte
                     elif int(highByte, 16) < 256:
@@ -170,38 +163,14 @@ while fileBytes < len(bytesArr):
             instruction = ".byte $0" + hex(bytesArr[fileBytes]).replace("0x", "") 
         else: 
             instruction = ".byte $" + hex(bytesArr[fileBytes]).replace("0x", "") 
-    if highByte != "" and lowByte == "":
-        main = hex(bytesArr[fileBytes - 1]).replace("0x", "")
-        high = hex(int(highByte, 16)).replace("0x", "")
-        if int(main, 16) < 16:
-            main = "0" + main
-        if int(high, 16) < 16:
-            high = "0" + high
-        counter = counter + main + " " + high
-    elif highByte != "" and lowByte != "":
-        main = hex(bytesArr[fileBytes - 2]).replace("0x", "")
-        low = hex(int(lowByte, 16)).replace("0x", "")
-        high = hex(int(highByte, 16)).replace("0x", "")
-        if int(main, 16) < 16:
-            main = "0" + main
-        if int(low, 16) < 16:
-            low = "0" + low
-        if int(high, 16) < 16:
-            high = "0" + high
-        counter = counter + main + " " + low + " " + high
-    elif highByte == "" and lowByte == "":
-        main = hex(bytesArr[fileBytes]).replace("0x", "")
-        if int(main, 16) < 16:
-            main = "0" + main
-        counter = counter + main
     if linesWritten == False:
-        fileoutput.write(instruction + " ; $" + counter) 
+        fileoutput.write(instruction) 
         linesWritten = True
     else:
-        fileoutput.write("\n" + instruction + " ; $" + counter) 
+        fileoutput.write("\n" + instruction) 
     fileBytes += 1 
 fileoutput.close() 
-os.system('python assembler.py "' + sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm") + '"') 
+os.system('python assembler.py ' + hex(start).replace("0x", "") + ' "' + sys.argv[1].replace(os.path.splitext(sys.argv[1])[1], ".asm") + '"') 
 hash = open("a.out", "rb") 
 hash = hash.read() 
 hash = hex(zlib.crc32(hash)).replace("0x", "") 
